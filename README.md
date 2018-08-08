@@ -1,7 +1,4 @@
-# README
-
-This README would normally document whatever steps are necessary to get the
-application up and running.
+# Mod 5 Project README
 
 Things you may want to cover:
 

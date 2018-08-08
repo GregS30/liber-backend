@@ -2,6 +2,9 @@ require_relative 'boot'
 
 require 'rails/all'
 
+require_relative "../app/lib/task_list.rb"
+require_relative "../app/lib/task_list_node.rb"
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
