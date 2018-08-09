@@ -1,0 +1,2 @@
+module JobTaskImagesHelper
+end
