@@ -26,13 +26,13 @@ Computer.destroy_all
 computers.each {|item| Computer.create(item)}
 
 users = [
-  {name: 'Greg', is_admin: true},
-  {name: 'Mario'},
-  {name: 'Judy'},
-  {name: 'Renell'},
-  {name: 'Candace'},
-  {name: 'Elvie'},
-  {name: 'Mayei'}
+  {username: 'Greg', email: 'Greg@somemail.com', is_admin: true},
+  {username: 'Mario', email: 'Mario@somemail.com'},
+  {username: 'Judy', email: 'Judy@somemail.com'},
+  {username: 'Renell', email: 'Renell@somemail.com'},
+  {username: 'Candace', email: 'Candace@somemail.com'},
+  {username: 'Elvie', email: 'Elvie@somemail.com'},
+  {username: 'Mayei', email: 'Mayei@somemail.com'}
 ]
 
 User.destroy_all
