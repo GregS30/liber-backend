@@ -26,17 +26,36 @@ Computer.destroy_all
 computers.each {|item| Computer.create(item)}
 
 users = [
-  {username: 'Greg', email: 'Greg@somemail.com', is_admin: true},
-  {username: 'Mario', email: 'Mario@somemail.com'},
-  {username: 'Judy', email: 'Judy@somemail.com'},
-  {username: 'Renell', email: 'Renell@somemail.com'},
-  {username: 'Candace', email: 'Candace@somemail.com'},
-  {username: 'Elvie', email: 'Elvie@somemail.com'},
-  {username: 'Mayei', email: 'Mayei@somemail.com'}
+  {username: 'greg', email: 'Greg@mail.com', is_admin: true},
+  {username: 'mario', email: 'Mario@mail.com'},
+  {username: 'judy', email: 'Judy@mail.com'},
+  {username: 'renell', email: 'Renell@mail.com'},
+  {username: 'candace', email: 'Candace@mail.com'},
+  {username: 'elvie', email: 'Elvie@mail.com'},
+  {username: 'mayei', email: 'Mayei@mail.com'}
 ]
 
 User.destroy_all
-users.each {|item| User.create(item)}
+
+users.each { |item|
+  User.create(username: item[:username], email: item[:email], password: "123")
+}
+
+
+  # fetch('http://localhost:3000/apo/v1/create', {
+  #     method: 'POST',
+  #     headers: {
+  #       'Content-Type': 'application/json',
+  #     },
+  #     body: {
+  #       "user": {
+  #         "email": item[:email],
+  #         "password": "123",
+  #         "username": item[:username]
+  #       }
+  #     }
+  #   })
+  #   .then(res => res.json())
 
 clients = [
   {name: 'Amazon'},

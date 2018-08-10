@@ -1,5 +1,5 @@
 class Api::V1::HomeController < ApplicationController
-  
+
   # authenticate_user is now a resource you can use on any method to make sure the client is authorized
   before_action :authenticate_user,  only: [:auth]
 
@@ -10,7 +10,7 @@ class Api::V1::HomeController < ApplicationController
 
   # Authorized only method
   def auth
-    render json: { status: 200, msg: "You are currently Logged-in as #{current_user.username}" }
+    render json: { username: current_user.username, id: current_user.id }
   end
 
 end
