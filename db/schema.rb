@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_08_07_234930) do
+ActiveRecord::Schema.define(version: 2018_08_11_130800) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -43,7 +43,7 @@ ActiveRecord::Schema.define(version: 2018_08_07_234930) do
   create_table "job_tasks", force: :cascade do |t|
     t.integer "task_id"
     t.integer "job_id"
-    t.string "name"
+    t.integer "task_state_id"
     t.string "segment"
     t.integer "user_id"
     t.integer "computer_id"
@@ -51,8 +51,6 @@ ActiveRecord::Schema.define(version: 2018_08_07_234930) do
     t.datetime "start_datetime"
     t.datetime "end_datetime"
     t.integer "duration", default: 0
-    t.boolean "is_running", default: false
-    t.boolean "is_closed", default: false
     t.boolean "was_held", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -60,6 +58,7 @@ ActiveRecord::Schema.define(version: 2018_08_07_234930) do
 
   create_table "jobs", force: :cascade do |t|
     t.string "name"
+    t.integer "job_num"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -87,12 +86,23 @@ ActiveRecord::Schema.define(version: 2018_08_07_234930) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "tasks", force: :cascade do |t|
+  create_table "task_names", force: :cascade do |t|
     t.string "name"
-    t.string "nickname"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "task_states", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "tasks", force: :cascade do |t|
     t.integer "link"
     t.integer "next_link"
     t.integer "workflow_id"
+    t.integer "task_name_id"
     t.boolean "is_active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

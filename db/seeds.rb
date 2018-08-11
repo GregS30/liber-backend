@@ -1,85 +1,34 @@
+require_relative 'seeds_data'
 
-scanners = [
-  {name: 'Cleopatra', mfg: 'Treventus', model: 'ScanRobot', media: 'Book'},
-  {name: 'Wilhelmina', mfg: 'Treventus', model: 'ScanRobot', media: 'Book'},
-  {name: 'Gutenberg', mfg: 'Treventus', model: 'ScanRobot', media: 'Book'},
-  {name: 'Bismarck', mfg: 'Image Access', model: 'Bookeye V3R2', media: 'Book'},
-  {name: 'Beethoven', mfg: 'Image Access', model: 'Bookeye V3R2', media: 'Book'},
-  {name: 'MacArthur', mfg: 'Avision', model: 'FB6280', media: 'Book'},
-  {name: 'Patton', mfg: 'Avision', model: 'FB6280', media: 'Book'},
-  {name: 'Eisenhower', mfg: 'Avision', model: 'FB6280', media: 'Book'}
-]
+puts('TaskState')
+TaskState.destroy_all
+TASK_STATE.each {|item| TaskState.create(item)}
 
+puts('Scanner')
 Scanner.destroy_all
-scanners.each {|item| Scanner.create(item)}
+SCANNERS.each {|item| Scanner.create(item)}
 
-computers = [
-  {name: 'DELL_WS_001'},
-  {name: 'DELL_WS_002'},
-  {name: 'DELL_WS_003'},
-  {name: 'DELL_WS_004'},
-  {name: 'LL_WS_001'},
-  {name: 'LL_WS_002'},
-]
-
+puts('Computer')
 Computer.destroy_all
-computers.each {|item| Computer.create(item)}
+COMPUTERS.each {|item| Computer.create(item)}
 
-users = [
-  {username: 'greg', email: 'Greg@mail.com', is_admin: true},
-  {username: 'mario', email: 'Mario@mail.com'},
-  {username: 'judy', email: 'Judy@mail.com'},
-  {username: 'renell', email: 'Renell@mail.com'},
-  {username: 'candace', email: 'Candace@mail.com'},
-  {username: 'elvie', email: 'Elvie@mail.com'},
-  {username: 'mayei', email: 'Mayei@mail.com'}
-]
-
+puts('User')
 User.destroy_all
-
-users.each { |item|
-  User.create(username: item[:username], email: item[:email], password: "123")
+USERS.each { |item|
+  User.create(username: item[:username], email: item[:email].downcase!, password: "123")
 }
+greg = User.find_by(username: "greg")
+greg.is_admin = true
+greg.save
 
-
-  # fetch('http://localhost:3000/apo/v1/create', {
-  #     method: 'POST',
-  #     headers: {
-  #       'Content-Type': 'application/json',
-  #     },
-  #     body: {
-  #       "user": {
-  #         "email": item[:email],
-  #         "password": "123",
-  #         "username": item[:username]
-  #       }
-  #     }
-  #   })
-  #   .then(res => res.json())
-
-clients = [
-  {name: 'Amazon'},
-  {name: 'Internet Archive'},
-  {name: 'County Court'},
-  {name: 'Central Synagogue'}
-]
-
+puts('Client')
 Client.destroy_all
-clients.each {|item| Client.create(item)}
+CLIENTS.each {|item| Client.create(item)}
 
-projects = [
-  {name: 'Print on demand', client: 'Amazon', workflow: 'Book POD'},
-  {name: 'Transcript', client: 'County Court', workflow: 'Transcript'},
-  {name: 'Newsletter', client: 'Central Synagogue', workflow: 'Newsletter'},
-  {name: 'Exhibtion catalogs', client: 'Internet Archive', workflow: 'Catalog'},
-  {name: 'Sale catalogs (a)', client: 'Internet Archive', workflow: 'Catalog'},
-  {name: 'Sale catalogs (f)', client: 'Internet Archive', workflow: 'Catalog'},
-  {name: 'Art research books', client: 'Internet Archive', workflow: 'Book'}
-]
-
+puts('Project & Workflow')
 Project.destroy_all
 Workflow.destroy_all
-projects.each {|item|
+PROJECTS.each {|item|
   project = Project.new(name: item[:name])
   project.client = Client.find_by(name: item[:client])
   project.save
@@ -90,23 +39,16 @@ projects.each {|item|
 
 # Workflow.all.each {|item| puts("Workflow: #{item.name} / Project: #{item.project.name} / Client: #{item.project.client.name}")}
 
-workflow_tasks = [
-  {workflow: 'Book POD',
-    task_name: ['check-in', 'scan', 'crop', 'adjust', 'transform', 'qa', 'output', 'checkout']},
-  {workflow: 'Transcript',
-    task_name: ['check-in', 'scan', 'index', 'crop', 'transform', 'qa', 'output', 'checkout']},
-  {workflow: 'Newsletter',
-    task_name: ['check-in', 'scan', 'crop', 'qa', 'output', 'checkout']},
-  {workflow: 'Catalog',
-    task_name: ['check-in', 'scan', 'covers', 'qa-capture', 'crop', 'index', 'qa', 'output', 'checkout']},
-  {workflow: 'Book',
-    task_name: ['check-in', 'scan', 'covers', 'qa-capture', 'crop', 'index', 'qa', 'output', 'checkout']}
-]
-
+puts('Task & TaskName')
 Task.destroy_all
-workflow_tasks.each {|item|
+TaskName.destroy_all
+WORKFLOW_TASKS.each {|item|
   list = TaskList.new
   item[:task_name].each {|name|
+    if !task_name = TaskName.find_by(name: name)
+      task_name = TaskName.create(name: name)
+    end
+
     list.append(name)
   }
   # list.print
@@ -114,5 +56,58 @@ workflow_tasks.each {|item|
 }
 
 list = TaskList.new
-list.read_tasks('Book POD')
-list.print
+list.read_tasks('_prototype')
+# list.print
+
+puts('JobTask')
+JobTask.destroy_all
+JOB_TASKS.each { |seed|
+  if !j = Job.find_by(job_num: seed[:job_num])
+    j = Job.new
+    j.job_num = seed[:job_num]
+    j.name = seed[:job_name]
+    j.save
+  end
+
+  jt = JobTask.new
+
+  task = Task.find_by_sql("select t.* from tasks t, workflows w, task_names tn where w.id = t.workflow_id and tn.id = t.task_name_id and w.name='#{seed[:workflow]}' and tn.name='#{seed[:task]}'")
+
+  # puts("w.name='#{seed[:workflow]}' and tn.name='#{seed[:task]}'")
+
+  jt.task_id = task[0].id
+
+  jt.job_id = j.id
+  jt.segment = "A"
+  jt.user = User.find_by(username: seed[:user].downcase)
+
+  case seed[:user]
+    when "Judy"
+      ws = "DELL_WS_001"
+    when "Renell"
+      ws = "DELL_WS_002"
+    when "Candace"
+      ws = "LL_WS_001"
+    when "Elvie"
+      ws = "LL_WS_002"
+    when "ChiChi"
+      ws = "LL_WS_003"
+    when "Julius"
+      ws = "LL_WS_004"
+    when "Adrian"
+      ws = "DELL_WS_003"
+  end
+
+  jt.computer = Computer.find_by(name: ws)
+
+  jt.scanner = Scanner.find_by(name: seed[:scanner_name])
+  jt.start_datetime = seed[:start_time]
+  jt.end_datetime = seed[:end_time]
+  jt.duration = seed[:duration]
+
+  jt.was_held = false
+  jt.task_state = TaskState.find_by(name: 'closed')
+
+  jt.save
+
+}

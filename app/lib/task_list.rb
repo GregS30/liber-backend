@@ -91,19 +91,21 @@ class TaskList
   end
 
   def new_task(node, workflow_name)
-    task = Task.new
-    task.name = node.value
-    task.nickname = node.value
-    task.link = node.link
-    task.next_link = node.next_link
-    task.workflow = Workflow.find_by(name: workflow_name)
-    task.save
+    db_task = Task.new
+    db_task.link = node.link
+    db_task.next_link = node.next_link
+    db_task.workflow = Workflow.find_by(name: workflow_name)
+    db_task.task_name = TaskName.find_by(name: node.value)
+    db_task.save
   end
 
   def read_tasks(workflow_name)
-    tasks = Workflow.find_by(name: workflow_name).tasks.order(:next_link)
+
+    sql = "select t.* from tasks t, task_names tn, workflows w where w.id = t.workflow_id and t.task_name_id = tn.id and w.name = '#{workflow_name}' order by t.next_link"
+
+    tasks = Task.find_by_sql(sql)
     tasks.each{ |db_task|
-      self.append(db_task.name, db_task)
+      self.append(db_task.task_name.name, db_task)
     }
   end
 

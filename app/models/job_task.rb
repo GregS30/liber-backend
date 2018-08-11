@@ -5,4 +5,5 @@ class JobTask < ApplicationRecord
   belongs_to :scanner
   belongs_to :computer
   belongs_to :user
+  belongs_to :task_state
 end
