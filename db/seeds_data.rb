@@ -69,7 +69,6 @@ USERS = [
   {username: 'Renell', email: 'Renell@mail.com'}
 ]
 
-
 TASK_STATE = [
   {name: 'open'},
   {name: 'active'},
