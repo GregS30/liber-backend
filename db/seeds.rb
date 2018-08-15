@@ -1,5 +1,43 @@
 require_relative 'seeds_data'
 
+# # get yesterday and today
+# today = Date.today
+# yesterday = Date.today-1
+# if yesterday.cwday > 5 then yesterday = Date.today-3 end
+#
+# # this week
+# Date.today.all_week
+#
+# Date.today.all_month
+#
+# (Date.today-30).all_month
+#
+# Date.today.all_month.first
+#
+# Date.today.all_month.first.strftime("%Y-%m-%d %H:%M:%S")
+#
+# this week = 8/13 to 8/17
+# next week = 8/20 to 8/24
+#
+#
+# require 'csv'
+#
+# csv_text = File.read('...')
+# csv = CSV.parse(csv_text, :headers => true)
+# csv.each do |row|
+#   Moulding.create!(row.to_hash)
+# end
+#
+
+# Time.strftime("%H:%M")
+
+# query for date ranges
+# select task_id, start_datetime, end_datetime
+# from job_tasks
+# where cast(start_datetime as date) >= '2017-05-24'
+# and cast(start_datetime as date) <= '2017-05-30'
+
+
 puts('TaskState')
 TaskState.destroy_all
 TASK_STATE.each {|item| TaskState.create(item)}
