@@ -6,7 +6,8 @@ class Api::V1::JobTasksController < ApplicationController
     # have to use UTC time to work with find_by_sql
     beforeTimeNow = DateTime.current.utc.strftime("%H:%M")
 
-    sql = 
+
+    sql =
       "select *
       from job_tasks
       where cast(start_datetime as time) < '#{beforeTimeNow}'
