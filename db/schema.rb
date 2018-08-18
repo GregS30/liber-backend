@@ -52,6 +52,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_130800) do
     t.datetime "end_datetime"
     t.integer "duration", default: 0
     t.boolean "was_held", default: false
+    t.integer "img_count"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -66,6 +67,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_130800) do
   create_table "projects", force: :cascade do |t|
     t.string "name"
     t.integer "client_id"
+    t.string "proj_code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

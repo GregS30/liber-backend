@@ -12,6 +12,7 @@ class CreateJobTasks < ActiveRecord::Migration[5.2]
       t.datetime :end_datetime
       t.integer :duration, default: 0
       t.boolean :was_held, default: false
+      t.integer :img_count
 
       t.timestamps
     end

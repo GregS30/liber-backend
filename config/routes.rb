@@ -28,9 +28,10 @@ Rails.application.routes.draw do
       patch  '/user/:id'       => 'users#update'
       delete '/user/:id'       => 'users#destroy'
 
+      # main actions
       get '/filters' => 'filters#index'
-
       get '/job_tasks' => 'job_tasks#index'
+      get '/analytics' => 'analytics#index'
 
     end
   end

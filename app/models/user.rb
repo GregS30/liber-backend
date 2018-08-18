@@ -10,7 +10,7 @@ class User < ApplicationRecord
   validates_confirmation_of :password, allow_nil: true, allow_blank: false
 
   before_validation {
-    (self.email = self.email.to_s.downcase) && (self.username = self.username.to_s.downcase)
+    (self.email = self.email.to_s.downcase) && (self.username = self.username.to_s)
   }
 
   # Make sure email and username are present and unique.

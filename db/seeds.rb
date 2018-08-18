@@ -1,24 +1,7 @@
 require_relative 'seeds_data'
 
-# # get yesterday and today
-# today = Date.today
-# yesterday = Date.today-1
-# if yesterday.cwday > 5 then yesterday = Date.today-3 end
-#
-# # this week
-# Date.today.all_week
-#
-# Date.today.all_month
-#
-# (Date.today-30).all_month
-#
-# Date.today.all_month.first
-#
-# Date.today.all_month.first.strftime("%Y-%m-%d %H:%M:%S")
-#
-# this week = 8/13 to 8/17
-# next week = 8/20 to 8/24
-#
+
+
 #
 # require 'csv'
 #
@@ -55,7 +38,7 @@ User.destroy_all
 USERS.each { |item|
   User.create(username: item[:username], email: item[:email].downcase!, password: "123")
 }
-greg = User.find_by(username: "greg")
+greg = User.find_by(username: "Greg")
 greg.is_admin = true
 greg.save
 
@@ -67,7 +50,7 @@ puts('Project & Workflow')
 Project.destroy_all
 Workflow.destroy_all
 PROJECTS.each {|item|
-  project = Project.new(name: item[:name])
+  project = Project.new(name: item[:name], proj_code: item[:proj_code])
   project.client = Client.find_by(name: item[:client])
   project.save
   workflow = Workflow.new(name: item[:workflow])
@@ -117,7 +100,7 @@ JOB_TASKS.each { |seed|
 
   jt.job_id = j.id
   jt.segment = "A"
-  jt.user = User.find_by(username: seed[:user].downcase)
+  jt.user = User.find_by(username: seed[:user])
 
   case seed[:user]
     when "Judy"
@@ -145,6 +128,7 @@ JOB_TASKS.each { |seed|
 
   jt.was_held = false
   jt.task_state = TaskState.find_by(name: 'closed')
+  jt.img_count = seed[:images]
 
   jt.save
 

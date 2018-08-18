@@ -1,5 +1,5 @@
 class JobTaskSerializer < ActiveModel::Serializer
-  attributes :id, :segment, :start_datetime, :end_datetime, :duration, :was_held
+  attributes :id, :segment, :start_datetime, :end_datetime, :duration, :was_held, :img_count
   belongs_to :user
   belongs_to :computer
   belongs_to :scanner
