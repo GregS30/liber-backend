@@ -1,40 +1,44 @@
 CLIENTS = [
   {name: 'Liber Alchemy'},
-  {name: 'Amazon'},
-  {name: 'Internet Archive'},
+  {name: 'World Retail'},
+  {name: 'Research Library'},
   {name: 'County Court'},
-  {name: 'Central Synagogue'}
+  {name: 'City Synagogue'},
+  {name: 'Private Library'}
 ]
 
 PROJECTS = [
   {name: '_prototype', client: 'Liber Alchemy', workflow: '_prototype', proj_code: 'proto' },
-  {name: 'Print on demand', client: 'Amazon', workflow: 'Book POD', proj_code: '17POD' },
-  {name: 'Transcript', client: 'County Court', workflow: 'Transcript', proj_code: '17USSC' },
-  {name: 'Newsletter', client: 'Central Synagogue', workflow: 'Newsletter', proj_code: '17CS' },
-  {name: 'Catalog (ex)', client: 'Internet Archive', workflow: 'Catalog', proj_code: '13WEX' },
-  {name: 'Catalog (as)', client: 'Internet Archive', workflow: 'Catalog', proj_code: '12WAS' },
-  {name: 'Catalog (fs) (f)', client: 'Internet Archive', workflow: 'Catalog', proj_code: '12WFS' },
-  {name: 'Monograph', client: 'Internet Archive', workflow: 'Book', proj_code: '14WBK' },
-  {name: 'Periodical', client: 'Internet Archive', workflow: 'Periodical', proj_code: '14WPER' }
+  {name: 'Print on demand', client: 'World Retail', workflow: 'Book POD', proj_code: '17NASH' },
+  {name: 'Transcript', client: 'County Court', workflow: 'Transcript', proj_code: '17DC' },
+  {name: 'Newsletter', client: 'City Synagogue', workflow: 'Newsletter', proj_code: '17NYCS' },
+  {name: 'Playbills', client: 'Private Library', workflow: 'Newsletter', proj_code: '17PLAY' },
+  {name: 'Catalog (ex)', client: 'Research Library', workflow: 'Catalog', proj_code: '13WEX' },
+  {name: 'Catalog (as)', client: 'Research Library', workflow: 'Catalog', proj_code: '12WAS' },
+  {name: 'Catalog (fs)', client: 'Research Library', workflow: 'Catalog', proj_code: '12WFS' },
+  {name: 'Monograph', client: 'Research Library', workflow: 'Book', proj_code: '14WBK' },
+  {name: 'Periodical', client: 'Research Library', workflow: 'Periodical', proj_code: '14WPER' },
+  {name: 'Tech Library', client: 'Private Library', workflow: 'Book', proj_code: '17BCW' },
+  {name: 'Books', client: 'Private Library', workflow: 'Book', proj_code: '17RTS' },
 
 ]
 
 # this incldues redundancies dependent on CLIENTS and PROJECTS
 WORKFLOW_TASKS = [
   {workflow: '_prototype',
-    task_name: ['check-in', 'scan', 'covers', 'qa-capture', 'crop', 'index', 'adjust', 'mutate', 'qa', 'export', 'repack', 'checkout']},
+    task_name: ['check-in', 'scan', 'covers', 'qa-capture', 'crop', 'index', 'adjust', 'mutate', 'hold', 'qa', 'export', 'repack', 'checkout']},
   {workflow: 'Book POD',
-    task_name: ['check-in', 'scan', 'crop', 'adjust', 'mutate', 'qa', 'export', 'repack', 'checkout']},
+    task_name: ['check-in', 'scan', 'crop', 'adjust', 'mutate', 'hold', 'qa', 'export', 'repack', 'checkout']},
   {workflow: 'Transcript',
-    task_name: ['check-in', 'scan', 'index', 'crop', 'mutate', 'qa', 'export', 'repack', 'checkout']},
+    task_name: ['check-in', 'scan', 'index', 'crop', 'mutate', 'hold', 'qa', 'export', 'repack', 'checkout']},
   {workflow: 'Newsletter',
-    task_name: ['check-in', 'scan', 'crop', 'qa', 'export', 'repack', 'checkout']},
+    task_name: ['check-in', 'scan', 'covers', 'qa-capture', 'crop', 'hold', 'qa', 'export', 'repack', 'checkout']},
   {workflow: 'Catalog',
-    task_name: ['check-in', 'scan', 'covers', 'qa-capture', 'crop', 'index', 'qa', 'mutate', 'export', 'repack', 'checkout']},
+    task_name: ['check-in', 'scan', 'covers', 'qa-capture', 'crop', 'index', 'hold', 'qa', 'mutate', 'export', 'repack', 'checkout']},
   {workflow: 'Book',
-    task_name: ['check-in', 'scan', 'covers', 'qa-capture', 'crop', 'index', 'qa', 'mutate', 'export', 'repack', 'checkout']},
+    task_name: ['check-in', 'scan', 'covers', 'qa-capture', 'crop', 'index', 'hold', 'qa', 'mutate', 'export', 'repack', 'checkout']},
   {workflow: 'Periodical',
-    task_name: ['check-in', 'scan', 'covers', 'qa-capture', 'crop', 'index', 'qa', 'mutate', 'export', 'repack', 'checkout']}
+    task_name: ['check-in', 'scan', 'covers', 'qa-capture', 'crop', 'index', 'hold', 'qa', 'mutate', 'export', 'repack', 'checkout']}
 ]
 
 SCANNERS = [

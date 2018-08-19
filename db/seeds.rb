@@ -8,6 +8,7 @@ PROJECTS17 = ['17BCW', '17DC', '17NASH', '17NYCS', '17PLAY', '17RTS']
 $dell = 0
 $lian_lee = 0
 $echo_all = true
+$echo_new = true
 
 $user_computers = []
 
@@ -35,30 +36,29 @@ end
 def derive_project_name(name)
 
   if name.upcase != 'UNK'
-    return name
-  end
+    project = Project.find_by(proj_code: name).name
+  else
+    slice1 = name.slice(0)
+    slice2 = name.slice(0, 2).rstrip
+    slice3 = name.slice(0, 3).rstrip
 
-  slice1 = name.slice(0)
-  slice2 = name.slice(0, 2).rstrip
-  slice3 = name.slice(0, 3).rstrip
-
-  if slice1 == '+' || is_valid_integer(slice3) || slice1 == 'M' || slice2 == 'MM'
-    project = 'Monograph'
-  elsif
-    project = case slice3.upcase
-    when 'AS' then 'Catalog (as)'
-    when 'FS' then 'Catalog (fs)'
-    when 'FSS' then 'Catalog (fs)'
-    when 'EX.' then 'Catalog (ex)'
-    when 'EX' then 'Catalog (ex)'
-    when 'AP1' then 'Periodical'
-    when 'AP2' then 'Periodical'
-    else 'Periodical'
+    if slice1 == '+' || is_valid_integer(slice3) || slice1 == 'M' || slice2 == 'MM'
+      project = 'Monograph'
+    elsif
+      project = case slice3.upcase
+      when 'AS' then 'Catalog (as)'
+      when 'FS' then 'Catalog (fs)'
+      when 'FSS' then 'Catalog (fs)'
+      when 'EX.' then 'Catalog (ex)'
+      when 'EX' then 'Catalog (ex)'
+      when 'AP1' then 'Periodical'
+      when 'AP2' then 'Periodical'
+      else 'Periodical'
+      end
     end
+
   end
-
   if $echo_all then puts("project '#{name}' => '#{project}'") end
-
   return project
 end
 
@@ -105,7 +105,7 @@ def insert_computer(username)
     name = 'LL-WS-' + $lian_lee.to_s.rjust(3, "0")
   end
 
-  if $echo_all then puts("Computer '#{username}' => '#{name}'") end
+  if $echo_new then puts("New Computer '#{username}' => '#{name}'") end
   new_computer = Computer.create(name: name)
   return new_computer
 end
@@ -113,7 +113,7 @@ end
 def insert_scanner(import_name)
   name = get_scanner(import_name)
   if !scanner = Scanner.find_by(name: name)
-    if $echo_all then puts("Scanner '#{import_name}' => '#{name}'") end
+    if $echo_new then puts("New Scanner '#{import_name}' => '#{name}'") end
     scanner = Scanner.create(name: name)
   end
   return scanner
@@ -129,7 +129,7 @@ def insert_user(username)
     if username == 'Iwachow'
       username = 'Blue'
     end
-    if $echo_all then puts("User ' #{username}'") end
+    if $echo_new then puts("New User ' #{username}'") end
     user = User.create(username: username, email: username.downcase + "@bcw-usa.com", password: "123")
     computer = insert_computer(username)
     $user_computers.push({user: user, computer: computer})
@@ -279,13 +279,14 @@ def initial_setup
 
       list.append(name)
     }
-    # list.print
-    list.write_tasks(item[:workflow])
+    if $echo_all then list.print end
+    workflows = Workflow.where(name: item[:workflow])
+    workflows.each{ |wf| list.write_tasks(wf.id) }
   }
 
   list = TaskList.new
-  list.read_tasks('_prototype')
-  # list.print
+  list.read_tasks('_prototype', '_prototype')
+  if $echo_all then list.print end
 
 end
 
@@ -305,14 +306,11 @@ def seed_scanstats
     task_import = ActiveRecord::Base.connection.exec_query(sql)
 
     task_import.each{ |ti|
-      if task_count > 10000
-        break
-      end
 
       task_count = task_count + 1
 
-      if $echo_all then puts(
-        "\nJob #{ti["job_num"]} Task '#{ti["state"]}' Images '#{ti["images"]}'") end
+      if task_count % 1000 == 0 then puts(
+        "\nYear: #{year} Count: #{task_count} Job: #{ti["job_num"]} Task:  '#{ti["state"]}' Images: '#{ti["images"]}'") end
 
       jt = JobTask.new
       jt.segment = "A"
@@ -372,16 +370,13 @@ def seed_scanstats
       end
 
     }
-    break
-
   }
-
 end
 
 def process_now
   JobTask.destroy_all
   initial_setup
-#  seed_test_data
+  seed_test_data
   if $user_computers.length == 0  # this will occru when  seed_test_data is not invoked
     get_user_computers()
   end

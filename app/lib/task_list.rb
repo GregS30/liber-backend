@@ -80,30 +80,37 @@ class TaskList
     end
   end
 
-  def write_tasks(workflow_name)
+  def write_tasks(workflow_id)
     return if !node = @head
-
-    new_task(node, workflow_name)
-
+    new_task(node, workflow_id)
     while (node = node.next)
-      new_task(node, workflow_name)
+      new_task(node, workflow_id)
     end
   end
 
-  def new_task(node, workflow_name)
+  def new_task(node, workflow_id)
     db_task = Task.new
     db_task.link = node.link
     db_task.next_link = node.next_link
-    db_task.workflow = Workflow.find_by(name: workflow_name)
+    # db_task.workflow = Workflow.find_by(name: workflow_name)
+    db_task.workflow_id = workflow_id
     db_task.task_name = TaskName.find_by(name: node.value)
     db_task.save
   end
 
-  def read_tasks(workflow_name)
-
-    sql = "select t.* from tasks t, task_names tn, workflows w where w.id = t.workflow_id and t.task_name_id = tn.id and w.name = '#{workflow_name}' order by t.next_link"
-
-    tasks = Task.find_by_sql(sql)
+  def read_tasks(workflow_name, project_name)
+    tasks = Task.find_by_sql(
+      <<-SQL
+        select t.*
+        from tasks t
+        join task_names tn on tn.id = t.task_name_id
+        join workflows w on w.id = t.workflow_id
+        join projects p on p.id = w.project_id
+        where w.name = '#{workflow_name}'
+        and p.name = '#{project_name}'
+        order by t.next_link
+      SQL
+    )
     tasks.each{ |db_task|
       self.append(db_task.task_name.name, db_task)
     }
