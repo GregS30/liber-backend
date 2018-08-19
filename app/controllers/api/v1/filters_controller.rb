@@ -4,7 +4,19 @@ class Api::V1::FiltersController < ApplicationController
     @clients = Client.all.order(:name)
     @projects = Project.all.order(:name)
     @workflows = Workflow.all.order(:name)
-    @jobs = Job.all.order(:job_num)
+
+    # this is a kludge - have to move to jobs_controller and refresh whenever TaskContainer Date filter changes
+    todays_date = Date.today.strftime("%Y-%m-%d")
+    @jobs = Job.find_by_sql(
+      <<-SQL
+      select distinct j.id, j.name, j.job_num
+      from jobs as j
+      join job_tasks as jt on j.id = jt.job_id
+      where cast(start_datetime as date) = '#{todays_date}'
+      order by j.name
+      SQL
+    )
+
     @task_states = TaskState.all.order(:name)
 
     @task_names = TaskName.find_by_sql(
@@ -18,19 +30,18 @@ class Api::V1::FiltersController < ApplicationController
       SQL
     )
 
-    @connection = ActiveRecord::Base.connection
-    @result = @connection.exec_query(
-      <<-SQL
-      select distinct cast(start_datetime as date)
-      from job_tasks
-      order by cast(start_datetime as date)
-      SQL
-    )
-
-    @task_dates = []
-    @result.each do |row|
-      @task_dates.push(row["start_datetime"])
-    end
+    # when would Date be meaningful in a filter? too many!
+    # @result = ActiveRecord::Base.connection.exec_query(
+    #   <<-SQL
+    #   select distinct cast(start_datetime as date)
+    #   from job_tasks
+    #   order by cast(start_datetime as date)
+    #   SQL
+    # )
+    # @task_dates = []
+    # @result.each do |row|
+    #   @task_dates.push(row["start_datetime"])
+    # end
 
     @users = User.all.order(:username)
     @users_simple = []
@@ -38,7 +49,9 @@ class Api::V1::FiltersController < ApplicationController
       @users_simple.push({id: row["id"], username: row["username"] })
     end
 
-    render json: {periods: get_periods(), users: @users_simple, clients: @clients, projects: @projects, workflows: @workflows, task_names: @task_names, task_states: @task_states, task_dates: @task_dates, jobs: @jobs}
+    render json: {periods: get_periods(), users: @users_simple, clients: @clients, projects: @projects, workflows: @workflows, task_names: @task_names, task_states: @task_states,
+      # task_dates: @task_dates,
+      jobs: @jobs}
 
   end
 

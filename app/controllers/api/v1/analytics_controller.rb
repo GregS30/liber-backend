@@ -14,7 +14,7 @@ class Api::V1::AnalyticsController < ApplicationController
         aggregator = 'u.username'
     end
 
-    select_part = 'select ' + aggregator + ', count(distinct jt.job_id), sum(jt.img_count)'
+    select_part = 'select ' + aggregator + ', count(distinct jt.job_id) as jobs, sum(jt.img_count) as images'
 
     from_join_part = <<-SQL
       from job_tasks as jt
