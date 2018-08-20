@@ -3,8 +3,6 @@ require 'csv'
 
 CSV_PATH = '/Users/gregs/Development/m5/task-data/'
 
-PROJECTS17 = ['17BCW', '17DC', '17NASH', '17NYCS', '17PLAY', '17RTS']
-
 $dell = 0
 $lian_lee = 0
 $echo_all = true
@@ -62,7 +60,7 @@ def derive_project_name(name)
   return project
 end
 
-def derive_task_name(name)
+def derive_task_name(project, name)
 
   task = case name
   when 'C-Check' then 'qa-capture'
@@ -86,7 +84,26 @@ def derive_task_name(name)
   else ''     # this should not happen
   end
 
-  # Logged and Repacked were excluded from Scan Stats "Jobs Fintask section
+  # Logged and Repacked were excluded from Scan Stats "Jobs Finalized Jobs section - check with Iwachow?????
+
+  # index task changes to split
+  if project == 'Transcript' && task == 'qa-capture'
+    # !!!!!!!!!!!!! after next seed change to
+    task = 'split'
+     # task = 'index'
+  end
+
+  # kludge, some tasks are meaningless for some projects
+  if (project == 'Transcript' || project == 'Print on demand' || project == 'Newsletter' || project == 'Playbills') && (task == 'covers' || task == 'qa-capture')
+    if $echo_all then puts("#{task} task skipped for #{project}") end
+    task = ''
+  end
+
+  if (project == 'Print on demand' || project == 'Newsletter' || project == 'Playbills') && (task == 'index')
+    if $echo_all then puts("#{task} task skipped for #{project}") end
+    task = ''
+  end
+
 
   if $echo_all then puts("task '#{name}' => '#{task}'") end
 
@@ -120,15 +137,12 @@ def insert_scanner(import_name)
 end
 
 def insert_user(username)
-  if username == 'Jason'
+  if username == 'Jason' || username == 'Iwachow'
     username = 'Blue'
   end
   if user = User.find_by(username: username)
     computer = $user_computers.find {|uc| uc[:user].username == username}[:computer]
   else
-    if username == 'Iwachow'
-      username = 'Blue'
-    end
     if $echo_new then puts("New User ' #{username}'") end
     user = User.create(username: username, email: username.downcase + "@bcw-usa.com", password: "123")
     computer = insert_computer(username)
@@ -138,13 +152,15 @@ def insert_user(username)
   return {user: user, computer: computer}
 end
 
-def clean_up
-  greg = User.find_by(username: "Greg")
-  greg.is_admin = true
-  greg.save
-  blue = User.find_by(username: "Blue")
-  blue.is_admin = true
-  blue.save
+def assign_is_admin
+  if greg = User.find_by(username: "Greg")
+    greg.is_admin = true
+    greg.save
+  end
+  if blue = User.find_by(username: "Blue")
+    blue.is_admin = true
+    blue.save
+  end
 end
 
 def insert_job(num, name)
@@ -154,47 +170,6 @@ def insert_job(num, name)
   end
 
   return j
-end
-
-def seed_test_data
-  puts('JobTask')
-
-  JOB_TASKS.each { |seed|
-    if !j = Job.find_by(job_num: seed[:job_num])
-      j = Job.new
-      j.job_num = seed[:job_num]
-      j.name = seed[:job_name]
-      j.save
-    end
-
-    jt = JobTask.new
-
-    task = Task.find_by_sql("select t.* from tasks t, workflows w, task_names tn where w.id = t.workflow_id and tn.id = t.task_name_id and w.name='#{seed[:workflow]}' and tn.name='#{seed[:task]}'")
-
-    if $echo_all then puts("w.name='#{seed[:workflow]}' and tn.name='#{seed[:task]}'") end
-
-    jt.task_id = task[0].id
-
-    jt.job_id = j.id
-    jt.segment = "A"
-    user_and_computer = insert_user(seed[:user])
-    jt.user = user_and_computer[:user]
-
-    jt.computer = user_and_computer[:computer]
-    jt.scanner = Scanner.find_by(name: seed[:scanner_name])
-    jt.start_datetime = seed[:start_time]
-    jt.end_datetime = seed[:end_time]
-    jt.duration = seed[:duration]
-
-    jt.was_held = false
-    jt.task_state = TaskState.find_by(name: 'closed')
-    jt.img_count = seed[:images]
-
-    if !jt.save
-      puts("JobTask save failed!!!!!")
-      break
-    end
-  }
 end
 
 def get_user_computers
@@ -212,26 +187,37 @@ def get_user_computers
     $user_computers.push({user: user, computer:computer[0]})
   }
 
-  $user_computers.each {|uc| puts("#{uc[:user].username} => #{uc[:computer].name}")}
+  if $echo_all then
+    $user_computers.each {|uc| puts("#{uc[:user].username} => #{uc[:computer].name}")}
+  end
 
 end
 
 def import_scanstats
-  # Import.destroy_all
-  # filename = CSV_PATH + '2017.csv'
-  filename = CSV_PATH + '11-12B ready.csv'
+  files = [
+    '01A', '01B', '02-03A', '02-03B', '02-03C', '04', '05-06A', '05-06B', '05-06C', '07-08A', '07-08B', '07-08C', '09-10A', '09-10B', '09-10C', '11-12A', '11-12B', '2017'
+  ]
 
-  puts(filename)
-  count = 0
-  CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
-    @import = Import.new(row.to_hash)
-    @import.save
-    count = count + 1
-    if count % 1000 == 0
-      puts("row #{count}", row)
+  total_count = 0
+  Import.destroy_all
+  files.each {|fn|
+    filename = CSV_PATH + fn + ' ready.csv'
+
+    puts(filename)
+    count = 0
+    CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
+      @import = Import.new(row.to_hash)
+      @import.save
+      count = count + 1
+      if count % 5000 == 0
+        puts("row #{count}", row)
+      end
     end
-  end
-  puts("#{count} rows imported")
+    puts("#{count} rows imported")
+    total_count = total_count + count
+  }
+  puts("#{total_count} total rows imported")
+
 end
 
 def initial_setup
@@ -290,29 +276,81 @@ def initial_setup
 
 end
 
+def seed_test_data
+  puts('JobTask')
+
+  JOB_TASKS.each { |seed|
+    if !j = Job.find_by(job_num: seed[:job_num])
+      j = Job.new
+      j.job_num = seed[:job_num]
+      j.name = seed[:job_name]
+      j.save
+    end
+
+    jt = JobTask.new
+
+    task = Task.find_by_sql("select t.* from tasks t, workflows w, task_names tn where w.id = t.workflow_id and tn.id = t.task_name_id and w.name='#{seed[:workflow]}' and tn.name='#{seed[:task]}'")
+
+    if $echo_all then puts("w.name='#{seed[:workflow]}' and tn.name='#{seed[:task]}'") end
+
+    jt.task_id = task[0].id
+
+    jt.job_id = j.id
+    jt.segment = "A"
+    user_and_computer = insert_user(seed[:user])
+    jt.user = user_and_computer[:user]
+
+    jt.computer = user_and_computer[:computer]
+    jt.scanner = Scanner.find_by(name: seed[:scanner_name])
+    jt.start_datetime = seed[:start_time]
+    jt.end_datetime = seed[:end_time]
+    jt.duration = seed[:duration]
+
+    jt.was_held = false
+    jt.task_state = TaskState.find_by(name: 'closed')
+    jt.img_count = seed[:images]
+
+    if !jt.save
+      puts("JobTask save failed!!!!!")
+      break
+    end
+  }
+end
+
 def seed_scanstats
 
   import_years = [2012, 2013, 2014, 2015, 2016, 2017]
 
+  grand_count = 0
+
+  # import 1 year at a time
   import_years.each{ |year|
     task_count = 0
 
+    # query for import records for this year - from jan 1 to dec 31
+    puts("\nquery raw import for year #{year}")
     sql = <<-SQL
       select * from imports
       where datetext >= '#{year.to_s + '-01-01'}'
       and datetext <= '#{year.to_s + '-12-31'}'
     SQL
-
     task_import = ActiveRecord::Base.connection.exec_query(sql)
 
     task_import.each{ |ti|
 
       task_count = task_count + 1
-
-      if task_count % 1000 == 0 then puts(
+      if $echo_all || task_count % 1000 == 0 then puts(
         "\nYear: #{year} Count: #{task_count} Job: #{ti["job_num"]} Task:  '#{ti["state"]}' Images: '#{ti["images"]}'") end
 
       jt = JobTask.new
+      project_name = derive_project_name(ti["proj"])
+      task_name = derive_task_name(project_name, ti["state"]) # task column is mis-named
+
+      # some tasks are meaningless depending on the project, will come back as '' from derive_task_name()
+      if task_name == ''
+        next
+      end
+
       jt.segment = "A"
       jt.start_datetime = ti["datetext"]
       jt.end_datetime = ti["datetext"]
@@ -324,10 +362,6 @@ def seed_scanstats
       jt.scanner = insert_scanner(ti["scanner"])
       jt.job = insert_job(ti["job_num"], ti["job_name"])
       jt.task_state = TaskState.find_by(name: 'closed')
-
-      project_name = derive_project_name(ti["proj"])
-      task_name = derive_task_name(ti["state"]) # column is mis-named
-
       image_count = ti["images"].to_i
 
       # when task is covers, set image_count to 6, and add foldouts
@@ -344,11 +378,7 @@ def seed_scanstats
         image_count = ti["ref"].to_i
       end
 
-      if ti["held"].upcase == 'X'
-        jt.was_held = true
-      else
-        jt.was_held = false
-      end
+      ti["held"].upcase == 'X' ? jt.was_held = true : jt.was_held = false
 
       task = Task.find_by_sql(
         <<-SQL
@@ -370,17 +400,31 @@ def seed_scanstats
       end
 
     }
+    puts("\nyear #{year} completed, #{task_count} rows seeded\n")
+    grand_count = grand_count + task_count
   }
+  puts("\n#{grand_count} total rows seeded\n\n")
+
 end
 
 def process_now
-  JobTask.destroy_all
-  initial_setup
-  seed_test_data
-  if $user_computers.length == 0  # this will occru when  seed_test_data is not invoked
-    get_user_computers()
-  end
-  seed_scanstats
+
+  # (1)  DO NOT UNCOMMMENT import_scanstats unless db was reset!!!!
+  # import_scanstats
+
+  # (2)
+  # initial_setup
+
+  # (3)
+  # JobTask.destroy_all
+  # get_user_computers
+  # seed_test_data
+
+  # (4)
+  # get_user_computers
+  # seed_scanstats
+  # assign_is_admin
+
 end
 
 process_now
