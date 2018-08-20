@@ -12,6 +12,11 @@ class Api::V1::AnalyticsController < ApplicationController
         aggregator = 'tn.name'
       when 'user'
         aggregator = 'u.username'
+      when 'client'
+        aggregator = 'c.name'
+      when 'project'
+        aggregator = 'p.name'
+
     end
 
     select_part = 'select ' + aggregator + ', count(distinct jt.job_id) as jobs, sum(jt.img_count) as images'
@@ -24,13 +29,17 @@ class Api::V1::AnalyticsController < ApplicationController
       join task_names as tn on tn.id = t.task_name_id
       join workflows as w on w.id = t.workflow_id
       join projects as p on p.id = w.project_id
+      join clients c on c.id = p.client_id
     SQL
 
     where_part = <<-SQL
       where cast(jt.start_datetime as date) >= '#{params["start"]}'
       and cast(jt.start_datetime as date) <= '#{params["finish"]}'
-      and p.id = #{params["project"]}
     SQL
+
+    if params['project'] != '' && params['chart'] != 'project'
+      where_part = where_part + " and p.id=#{params['project']}"
+    end
 
     if params['task'] != '' && params['chart'] != 'task'
       where_part = where_part + " and tn.id=#{params['task']}"

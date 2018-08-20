@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_08_18_211327) do
+ActiveRecord::Schema.define(version: 2018_08_20_214458) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 2018_08_18_211327) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "color", default: "e3eaa7"
   end
 
   create_table "computers", force: :cascade do |t|
@@ -86,6 +87,7 @@ ActiveRecord::Schema.define(version: 2018_08_18_211327) do
     t.string "proj_code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "color", default: "e3eaa7"
   end
 
   create_table "scanners", force: :cascade do |t|
@@ -95,6 +97,7 @@ ActiveRecord::Schema.define(version: 2018_08_18_211327) do
     t.string "media"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "color", default: "e3eaa7"
   end
 
   create_table "skills", force: :cascade do |t|
@@ -108,12 +111,14 @@ ActiveRecord::Schema.define(version: 2018_08_18_211327) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "color", default: "e3eaa7"
   end
 
   create_table "task_states", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "color", default: "e3eaa7"
   end
 
   create_table "tasks", force: :cascade do |t|
@@ -134,6 +139,7 @@ ActiveRecord::Schema.define(version: 2018_08_18_211327) do
     t.datetime "last_login"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "color", default: "e3eaa7"
     t.index ["email"], name: "index_users_on_email"
   end
 

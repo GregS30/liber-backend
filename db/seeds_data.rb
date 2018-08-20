@@ -1,31 +1,32 @@
 CLIENTS = [
-  {name: 'Liber Alchemy'},
-  {name: 'World Retail'},
-  {name: 'Research Library'},
-  {name: 'County Court'},
-  {name: 'City Synagogue'},
-  {name: 'Private Library'}
+  {name: 'Liber Alchemy', color: '#a2b9bc'},
+  {name: 'World Retail', color: '#feb236'},
+  {name: 'Research Library', color: '#92a8d1'},
+  {name: 'County Court',  color: '#b2ad7f'},
+  {name: 'City Synagogue', color: '#eca1a6'},
+  {name: 'Private Library', color: '#d5e1df'}
 ]
 
 PROJECTS = [
-  {name: '_prototype', client: 'Liber Alchemy', workflow: '_prototype', proj_code: 'proto' },
-  {name: 'Print on demand', client: 'World Retail', workflow: 'Book POD', proj_code: '17NASH' },
-  {name: 'Transcript', client: 'County Court', workflow: 'Transcript', proj_code: '17DC' },
-  {name: 'Newsletter', client: 'City Synagogue', workflow: 'Newsletter', proj_code: '17NYCS' },
-  {name: 'Playbills', client: 'Private Library', workflow: 'Newsletter', proj_code: '17PLAY' },
-  {name: 'Catalog (ex)', client: 'Research Library', workflow: 'Catalog', proj_code: '13WEX' },
-  {name: 'Catalog (as)', client: 'Research Library', workflow: 'Catalog', proj_code: '12WAS' },
-  {name: 'Catalog (fs)', client: 'Research Library', workflow: 'Catalog', proj_code: '12WFS' },
-  {name: 'Monograph', client: 'Research Library', workflow: 'Book', proj_code: '14WBK' },
-  {name: 'Periodical', client: 'Research Library', workflow: 'Periodical', proj_code: '14WPER' },
-  {name: 'Tech Library', client: 'Private Library', workflow: 'Book', proj_code: '17BCW' },
-  {name: 'Books', client: 'Private Library', workflow: 'Book', proj_code: '17RTS' },
+  {name: '_prototype', color: '#b9936c', client: 'Liber Alchemy', workflow: '_prototype', proj_code: 'proto' },
+  {name: 'Print on demand', color: '#a79e84', client: 'World Retail', workflow: 'Book POD', proj_code: '17NASH' },
+  {name: 'Transcript', color: '#c1502e', client: 'County Court', workflow: 'Transcript', proj_code: '17DC' },
+  {name: 'Newsletter', color: '#ffef96', client: 'City Synagogue', workflow: 'Newsletter', proj_code: '17NYCS' },
+  {name: 'Playbills', color: '#f9d5e5', client: 'Private Library', workflow: 'Newsletter', proj_code: '17PLAY' },
+  {name: 'Catalog (ex)', color: '#d5f4e6', client: 'Research Library', workflow: 'Catalog', proj_code: '13WEX' },
+  {name: 'Catalog (as)', color: '#80ced6', client: 'Research Library', workflow: 'Catalog', proj_code: '12WAS' },
+  {name: 'Catalog (fs)', color: '#92a8d1', client: 'Research Library', workflow: 'Catalog', proj_code: '12WFS' },
+  {name: 'Monograph', color: '#77a8a8', client: 'Research Library', workflow: 'Book', proj_code: '14WBK' },
+  {name: 'Periodical', color: '#e4d1d1', client: 'Research Library', workflow: 'Periodical', proj_code: '14WPER' },
+  {name: 'Tech Library', color: '#b0aac0', client: 'Private Library', workflow: 'Book', proj_code: '17BCW' },
+  {name: 'Books', color: '#eea29a', client: 'Private Library', workflow: 'Book', proj_code: '17RTS' },
 
 ]
 
 # this incldues redundancies dependent on CLIENTS and PROJECTS
 WORKFLOW_TASKS = [
   {workflow: '_prototype',
+    # must include ever possible task_name that appears in other workflows
     task_name: ['check-in', 'scan', 'covers', 'split', 'inserts', 'qa-capture', 'crop', 'index', 'adjust', 'mutate', 'hold', 'qa', 'export', 'repack', 'checkout']},
   {workflow: 'Book POD',
     task_name: ['check-in', 'scan', 'crop', 'adjust', 'mutate', 'hold', 'qa', 'export', 'repack', 'checkout']},
@@ -53,11 +54,12 @@ SCANNERS = [
 ]
 
 TASK_STATE = [
-  {name: 'open'},
-  {name: 'active'},
-  {name: 'held'},
-  {name: 'closed'},
-  {name: 'stopped'}
+  {name: 'open', color: '#e3eaa7'},
+  {name: 'active', color: '#ffef96'},
+  {name: 'held', color: '#eea29a'},
+  {name: 'closed', color: '#c4b7a6'},
+  {name: 'stopped', color: '#c1502e'},
+  {name: 'pending', color: '#d5f4e6'}
 ]
 
 JOB_TASKS = [

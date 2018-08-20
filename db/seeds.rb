@@ -5,7 +5,7 @@ CSV_PATH = '/Users/gregs/Development/m5/task-data/'
 
 $dell = 0
 $lian_lee = 0
-$echo_all = true
+$echo_all = false
 $echo_new = true
 
 $user_computers = []
@@ -29,6 +29,27 @@ def get_scanner(name)
   end
 
   return scanner
+end
+
+def derive_img_count(task, images, foldouts, ref_count)
+
+  img_count = images
+
+  # when task is covers, set img_count to 6 (arbitrary?), and add foldouts
+  if task == 'covers'
+    if is_valid_integer(foldouts)
+      img_count = 6 + foldouts.to_i
+    else
+      img_count = 6
+    end
+  end
+
+  # set img_count to ref images when task is index
+  if task == 'index' && is_valid_integer(ref_count)
+    img_count = ref_count.to_i
+  end
+
+  return img_count
 end
 
 def derive_project_name(name)
@@ -89,8 +110,8 @@ def derive_task_name(project, name)
   # index task changes to split
   if project == 'Transcript' && task == 'qa-capture'
     # !!!!!!!!!!!!! after next seed change to
-    task = 'split'
-     # task = 'index'
+    # task = 'split'
+     task = 'index'
   end
 
   # kludge, some tasks are meaningless for some projects
@@ -319,9 +340,10 @@ end
 
 def seed_scanstats
 
-  import_years = [2012, 2013, 2014, 2015, 2016, 2017]
+  import_years = [2017] #[2012, 2013, 2014, 2015, 2016, 2017]
 
   grand_count = 0
+  skip_count = 0
 
   # import 1 year at a time
   import_years.each{ |year|
@@ -348,6 +370,7 @@ def seed_scanstats
 
       # some tasks are meaningless depending on the project, will come back as '' from derive_task_name()
       if task_name == ''
+        skip_count = skip_count + 1
         next
       end
 
@@ -362,22 +385,8 @@ def seed_scanstats
       jt.scanner = insert_scanner(ti["scanner"])
       jt.job = insert_job(ti["job_num"], ti["job_name"])
       jt.task_state = TaskState.find_by(name: 'closed')
-      image_count = ti["images"].to_i
 
-      # when task is covers, set image_count to 6, and add foldouts
-      if task_name == 'covers'
-        if is_valid_integer(ti["fos"])
-          image_count = 6 + ti["fos"].to_i
-        else
-          image_count = 6
-        end
-      end
-
-      # set image_count to ref images when task is index
-      if task_name == 'index' && is_valid_integer(ti["ref"])
-        image_count = ti["ref"].to_i
-      end
-
+      jt.img_count = derive_img_count(task_name, ti["images"].to_i, ti["fos"], ti["ref"])
       ti["held"].upcase == 'X' ? jt.was_held = true : jt.was_held = false
 
       task = Task.find_by_sql(
@@ -403,7 +412,8 @@ def seed_scanstats
     puts("\nyear #{year} completed, #{task_count} rows seeded\n")
     grand_count = grand_count + task_count
   }
-  puts("\n#{grand_count} total rows seeded\n\n")
+  puts("\n\n#{grand_count} total rows seeded")
+  puts("#{skip_count} total rows skipped\n\n")
 
 end
 
@@ -416,11 +426,11 @@ def process_now
   # initial_setup
 
   # (3)
-  # JobTask.destroy_all
-  # get_user_computers
-  # seed_test_data
+  get_user_computers
+  seed_test_data
 
   # (4)
+  # DONT FORGET SPLIT FIX !!!!!!!
   # get_user_computers
   # seed_scanstats
   # assign_is_admin
