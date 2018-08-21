@@ -108,10 +108,8 @@ def derive_task_name(project, name)
   # Logged and Repacked were excluded from Scan Stats "Jobs Finalized Jobs section - check with Iwachow?????
 
   # index task changes to split
-  if project == 'Transcript' && task == 'qa-capture'
-    # !!!!!!!!!!!!! after next seed change to
-    # task = 'split'
-     task = 'index'
+  if project == 'Transcript' && task == 'c-check'
+    task = 'split'
   end
 
   # kludge, some tasks are meaningless for some projects
@@ -120,7 +118,7 @@ def derive_task_name(project, name)
     task = ''
   end
 
-  if (project == 'Print on demand' || project == 'Newsletter' || project == 'Playbills') && (task == 'index')
+  if (project == 'Transcript' || project == 'Print on demand' || project == 'Newsletter' || project == 'Playbills') && (task == 'index')
     if $echo_all then puts("#{task} task skipped for #{project}") end
     task = ''
   end
@@ -245,6 +243,10 @@ def initial_setup
   puts('TaskState')
   TaskState.destroy_all
   TASK_STATE.each {|item| TaskState.create(item)}
+
+  puts('TaskName')
+  TaskName.destroy_all
+  TASK_NAME.each {|item| TaskName.create(item)}
 
   puts('Scanner')
   Scanner.destroy_all
@@ -417,6 +419,52 @@ def seed_scanstats
 
 end
 
+def update_color
+  TASK_STATE.each {|item|
+    if ts = TaskState.find_by(name: item[:name])
+      ts.color = item[:color]
+      ts.save
+    end
+  }
+
+  SCANNERS.each {|item|
+    if ts = Scanner.find_by(name: item[:name])
+      ts.color = item[:color]
+      ts.save
+    end
+  }
+
+  TASK_NAME.each {|item|
+    if ts = TaskName.find_by(name: item[:name])
+      ts.color = item[:color]
+      ts.save
+    end
+  }
+
+  CLIENTS.each {|item|
+    if ts = Client.find_by(name: item[:name])
+      ts.color = item[:color]
+      ts.save
+    end
+  }
+
+  PROJECTS.each {|item|
+    if ts = Project.find_by(name: item[:name])
+      ts.color = item[:color]
+      ts.save
+    end
+  }
+
+  USER_NAMES.each {|item|
+    if ts = User.find_by(username: item[:name])
+      ts.color = item[:color]
+      ts.save
+    end
+  }
+
+
+end
+
 def process_now
 
   # (1)  DO NOT UNCOMMMENT import_scanstats unless db was reset!!!!
@@ -430,10 +478,11 @@ def process_now
   seed_test_data
 
   # (4)
-  # DONT FORGET SPLIT FIX !!!!!!!
   # get_user_computers
   # seed_scanstats
   # assign_is_admin
+
+  # update_color
 
 end
 

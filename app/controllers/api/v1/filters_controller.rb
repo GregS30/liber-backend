@@ -1,6 +1,7 @@
 class Api::V1::FiltersController < ApplicationController
 
   def index
+    @scanners = Scanner.all.order(:name)
     @clients = Client.all.order(:name)
     @projects = Project.all.order(:name)
     @workflows = Workflow.all.order(:name)
@@ -21,7 +22,7 @@ class Api::V1::FiltersController < ApplicationController
 
     @task_names = TaskName.find_by_sql(
       <<-SQL
-      select tn.id, tn.name
+      select tn.id, tn.name, tn.color
       from tasks as t
       join task_names as tn on t.task_name_id = tn.id
       join workflows as w on w.id = t.workflow_id
@@ -46,10 +47,10 @@ class Api::V1::FiltersController < ApplicationController
     @users = User.all.order(:username)
     @users_simple = []
     @users.each do |row|
-      @users_simple.push({id: row["id"], username: row["username"] })
+      @users_simple.push({id: row["id"], name: row["username"], color: row["color"] })
     end
 
-    render json: {periods: get_periods(), users: @users_simple, clients: @clients, projects: @projects, workflows: @workflows, task_names: @task_names, task_states: @task_states,
+    render json: {periods: get_periods(), scanners: @scanners, users: @users_simple, clients: @clients, projects: @projects, workflows: @workflows, task_names: @task_names, task_states: @task_states,
       # task_dates: @task_dates,
       jobs: @jobs}
 

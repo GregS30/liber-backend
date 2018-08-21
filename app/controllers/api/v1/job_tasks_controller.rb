@@ -11,7 +11,7 @@ class Api::V1::JobTasksController < ApplicationController
     # NOTE!!!!! use this AFTER 8pm
     # beforeTimeNow = DateTime.current.strftime("%H:%M")
 
-    @job_tasks = JobTask.find_by_sql(
+    sql=
       <<-SQL
       select *
       from job_tasks
@@ -19,10 +19,11 @@ class Api::V1::JobTasksController < ApplicationController
       and cast(start_datetime as date) = '#{params["start_date"]}'
       order by start_datetime DESC
       SQL
-    )
+    @job_tasks = JobTask.find_by_sql(sql)
 
     render json: @job_tasks, include: '**'
 
+    puts(sql)
   end
 
 end
