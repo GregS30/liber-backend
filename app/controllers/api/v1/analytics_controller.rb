@@ -7,19 +7,24 @@ class Api::V1::AnalyticsController < ApplicationController
 
     case params['chart']
       when 'scanner'
+        column = 's.name'
         aggregator = 's.name'
       when 'task'
+        column = 'tn.name'
         aggregator = 'tn.name'
       when 'user'
+        column = 'u.username as name'
         aggregator = 'u.username'
       when 'client'
+        column = 'c.name'
         aggregator = 'c.name'
       when 'project'
-        aggregator = 'p.name'
+      column = 'p.name'
+      aggregator = 'p.name'
 
     end
 
-    select_part = 'select ' + aggregator + ', count(distinct jt.job_id) as jobs, sum(jt.img_count) as images'
+    select_part = 'select ' + column + ', count(distinct jt.job_id) as jobs, sum(jt.img_count) as images'
 
     from_join_part = <<-SQL
       from job_tasks as jt
