@@ -32,6 +32,7 @@ Rails.application.routes.draw do
       get '/filters' => 'filters#index'
       get '/job_tasks' => 'job_tasks#index'
       get '/analytics' => 'analytics#index'
+      get '/workflows' => 'workflow_tasks#index'
 
     end
   end

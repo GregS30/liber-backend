@@ -6,17 +6,18 @@ class Api::V1::FiltersController < ApplicationController
     @projects = Project.all.order(:name)
     @workflows = Workflow.all.order(:name)
 
+    @jobs = []
     # this is a kludge - have to move to jobs_controller and refresh whenever TaskContainer Date filter changes
-    todays_date = Date.today.strftime("%Y-%m-%d")
-    @jobs = Job.find_by_sql(
-      <<-SQL
-      select distinct j.id, j.name, j.job_num
-      from jobs as j
-      join job_tasks as jt on j.id = jt.job_id
-      where cast(start_datetime as date) = '#{todays_date}'
-      order by j.name
-      SQL
-    )
+    # todays_date = Date.today.strftime("%Y-%m-%d")
+    # @jobs = Job.find_by_sql(
+    #   <<-SQL
+    #   select distinct j.id, j.name, j.job_num
+    #   from jobs as j
+    #   join job_tasks as jt on j.id = jt.job_id
+    #   where cast(start_datetime as date) = '#{todays_date}'
+    #   order by j.name
+    #   SQL
+    # )
 
     @task_states = TaskState.all.order(:name)
 
@@ -30,6 +31,17 @@ class Api::V1::FiltersController < ApplicationController
       order by t.next_link
       SQL
     )
+
+    @tasks = []
+
+    # @tasks = Task.find_by_sql(
+    #   <<-SQL
+    #   select id, link, next_link, workflow_id, task_name_id
+    #   from tasks
+    #   order by workflow_id, next_link
+    #   SQL
+    # )
+
 
     # when would Date be meaningful in a filter? too many!
     # @result = ActiveRecord::Base.connection.exec_query(
@@ -50,9 +62,10 @@ class Api::V1::FiltersController < ApplicationController
       @users_simple.push({id: row["id"], name: row["username"], color: row["color"] })
     end
 
-    render json: {periods: get_periods(), scanners: @scanners, users: @users_simple, clients: @clients, projects: @projects, workflows: @workflows, task_names: @task_names, task_states: @task_states,
+    render json: {tasks: @tasks, periods: get_periods(), scanners: @scanners, users: @users_simple, clients: @clients, projects: @projects, workflows: @workflows, task_names: @task_names, task_states: @task_states,
       # task_dates: @task_dates,
-      jobs: @jobs}
+      jobs: @jobs
+    }
 
   end
 
