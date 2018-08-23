@@ -63,7 +63,12 @@ class Api::V1::AnalyticsController < ApplicationController
 
     query_result = ActiveRecord::Base.connection.exec_query(sql)
 
-    render json: query_result
+    select_part_totals = 'select count(distinct jt.job_id) as jobs, sum(jt.img_count) as images, count(distinct jt.user_id) as users, count(distinct jt.scanner_id) as scanners, count(distinct w.project_id) as projects, count(distinct jt.id) as tasks'
+
+    sql = select_part_totals + ' ' + from_join_part + ' ' + where_part
+    query_result_totals = ActiveRecord::Base.connection.exec_query(sql)
+
+    render json: {rows: query_result, totals: query_result_totals}
 
   end
 

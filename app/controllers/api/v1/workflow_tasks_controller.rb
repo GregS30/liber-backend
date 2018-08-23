@@ -5,7 +5,7 @@ class Api::V1::WorkflowTasksController < ApplicationController
     sql =
       <<-SQL
       select w.id, w.name,
-        p.id as project_id, p.name as project_name,
+        p.id as project_id, p.name as project_name, p.proj_code,
         c.id as client_id, c.name as client_name
       from workflows as w
       join projects as p on p.id = w.project_id
