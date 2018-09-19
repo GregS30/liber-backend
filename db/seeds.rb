@@ -15,17 +15,18 @@ def is_valid_integer(value)
 end
 
 def get_scanner(name)
+  # Fix some scanner names, otherwise just return name
 
   scanner = case name
-  when 'AVision' then 'Sally'
-  when 'Avision' then 'Sally'
-  when 'BE3' then 'Beethoven'
-  when 'FJ-5950' then 'Thatcher'
-  when 'Mercury' then 'Sally'
-  when 'PL' then 'Sally'
-  when 'Plustek' then 'Sally'
-  when 'SR' then 'Gutenberg'
-  else name
+    when 'AVision' then 'Sally'
+    when 'Avision' then 'Sally'
+    when 'BE3' then 'Beethoven'
+    when 'FJ-5950' then 'Thatcher'
+    when 'Mercury' then 'Sally'
+    when 'PL' then 'Sally'
+    when 'Plustek' then 'Sally'
+    when 'SR' then 'Gutenberg'
+    else name
   end
 
   return scanner
@@ -35,7 +36,7 @@ def derive_img_count(task, images, foldouts, ref_count)
 
   img_count = images
 
-  # when task is covers, set img_count to 6 (arbitrary?), and add foldouts
+  # For the Covers task, set img_count to 6, and add foldouts. 6 images for the covers task is somewhat arbitrary but it is usually at least 4 for inside front and back covers, and sometimes first and last page - more is better.  Add foldouts (image count) since the Coverts task includes scanning foldouts.
   if task == 'covers'
     if is_valid_integer(foldouts)
       img_count = 6 + foldouts.to_i
@@ -44,7 +45,7 @@ def derive_img_count(task, images, foldouts, ref_count)
     end
   end
 
-  # set img_count to ref images when task is index
+  # For the Index task, set img_count to ref_count. I believe  "reference count" is the number of reference numbers assigned, for example catalog or lot numbers, during the Index task; therefore the operator would have had to touch at least that many images.
   if task == 'index' && is_valid_integer(ref_count)
     img_count = ref_count.to_i
   end
@@ -54,6 +55,7 @@ end
 
 def derive_project_name(name)
 
+  # Project names have been defined already for the 2017 projects. Otherwise, if the project name is "unknown", have to derive the name from
   if name.upcase != 'UNK'
     project = Project.find_by(proj_code: name).name
   else
@@ -274,7 +276,9 @@ def initial_setup
     workflow.save
   }
 
-  # Workflow.all.each {|item| puts("Workflow: #{item.name} / Project: #{item.project.name} / Client: #{item.project.client.name}")}
+  if $echo_all
+    Workflow.all.each {|item| puts("Workflow: #{item.name} / Project: #{item.project.name} / Client: #{item.project.client.name}")}
+  end
 
   puts('Task & TaskName')
   Task.destroy_all
@@ -342,7 +346,7 @@ end
 
 def seed_scanstats
 
-  import_years = [2017] #[2012, 2013, 2014, 2015, 2016, 2017]
+  import_years = [2012, 2013, 2014, 2015, 2016, 2017]
 
   grand_count = 0
   skip_count = 0
@@ -465,7 +469,68 @@ def update_color
 
 end
 
+def seed_rand_img_count
+
+  job_tasks = JobTask.where('img_count=0')
+  count = 0
+  job_tasks.each {|jt|
+    jt.img_count = rand(20..220)
+    if jt.save
+      if count % 5000 == 0
+        puts("#{count} #{jt.img_count}")
+      end
+    end
+    count = count + 1
+  }
+
+end
+
+def export_scanstats_to_csv
+  years = ['2012', '2013', '2014', '2015', '2016', '2017']
+  headers = ["proj", "op", "state", "job_num", "job_name", "images", "fos", "ref", "held", "scanner", "datetext"]
+
+  total_row_count = 0
+  total_file_count = 0
+
+  years.each {|year|
+
+    rows = Import.where("SUBSTRING(datetext,1,4) = '#{year}'")
+    file_count = 1
+    row_count = 0
+    year_row_count = 0
+
+    filename = 'scanstats-' + year + '.csv'
+    puts("opening file #{filename} at #{year_row_count} rows")
+    CSV.open(filename, "w") do |file|
+      file << headers
+      rows.each {|row|
+        if row_count % 10000 == 0
+          puts("date #{row["datetext"]} @ row #{row_count}")
+        end
+
+        file << row.attributes.values_at(*headers)
+        row_count += 1
+      }
+    end
+
+    year_row_count += row_count
+    total_row_count += year_row_count
+    total_file_count += file_count
+
+    puts("year #{year} closed at #{year_row_count} rows")
+
+  }
+  puts("#{total_row_count} total rows in #{total_file_count} files")
+
+end
+
 def process_now
+
+  # to start from scratch, do these steps and then un-comment (1)
+  # (a) delete schema.rb
+  # (b) rails db:reset (will error out because schema.rb is missing)
+  # (c) rails db:migrate
+  # (d) rails db:seed
 
   # (1)  DO NOT UNCOMMMENT import_scanstats unless db was reset!!!!
   # import_scanstats
@@ -474,15 +539,19 @@ def process_now
   # initial_setup
 
   # (3)
-  get_user_computers
-  seed_test_data
+  # get_user_computers
+  # seed_test_data
 
   # (4)
   # get_user_computers
   # seed_scanstats
   # assign_is_admin
 
-  # update_color
+  update_color
+
+  # seed_rand_img_count
+
+  # export_scanstats_to_csv
 
 end
 

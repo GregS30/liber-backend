@@ -2,8 +2,13 @@ class Api::V1::AnalyticsController < ApplicationController
 
   def index
 
-    sample_url =
-    'http://localhost:3000/api/v1/analytics?chart=scanner&start=2017-01-01&finish=2017-12-31&project=3&task=&user='
+    # Query for chart content and totals
+    # and render json "rows" and "totals".
+
+    # URL includes chart type, period start/end,
+    # and optional project, task, and user filters.
+    # For example:
+    # 'http://localhost:3000/api/v1/analytics?chart=scanner&start=2017-01-01&finish=2017-12-31&project=3&task=&user='
 
     case params['chart']
       when 'scanner'
@@ -42,16 +47,22 @@ class Api::V1::AnalyticsController < ApplicationController
       and cast(jt.start_datetime as date) <= '#{params["finish"]}'
     SQL
 
-    if params['project'] != '' && params['chart'] != 'project'
+    if params['project'] != ''
       where_part = where_part + " and p.id=#{params['project']}"
     end
 
-    if params['task'] != '' && params['chart'] != 'task'
+    if params['task'] != ''
       where_part = where_part + " and tn.id=#{params['task']}"
     end
 
-    if params['user'] != '' && params['chart'] != 'user'
+    if params['user'] != ''
       where_part = where_part + " and u.id=#{params['user']}"
+    end
+
+    # Kludge to exclude 'Blue' (sysadmin) from 'user' chart -
+    # his volume is so high, it needlessly skews the scale of the chart
+    if params['chart'] == 'user'
+      where_part = where_part + " and u.username <> 'Blue'"
     end
 
     order_group_part = <<-SQL

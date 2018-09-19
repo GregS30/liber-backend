@@ -103,7 +103,7 @@ class TaskList
       <<-SQL
         select t.*
         from tasks t
-        join task_names tn on tb.id = t.task_name_id
+        join task_names tn on tn.id = t.task_name_id
         join workflows w on w.id = t.workflow_id
         join projects p on p.id = w.project_id
         where w.name = '#{workflow_name}'

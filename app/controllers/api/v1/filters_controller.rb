@@ -72,16 +72,32 @@ class Api::V1::FiltersController < ApplicationController
   private
 
   def get_periods
+    # We don't have a real factory, but we have real data from 2012 to 2017
+    # with largest volume of data from 2013 to 2015. Periods filter is used
+    # with Analytics, so we want to have realistic data.  The real_factory
+    # variable indicates whether or not we are operating an actual factory.
+    # Since we are not, the Periods are random.
+    real_factory = false
     periods = []
 
+    # Today is also used for Tasks page, and we have special test data
+    # seeded for 9/13/18, so hard-code Today to that date.
     period = {name: 'today',
-      start_date: Date.today.strftime('%Y-%m-%d'),
-      end_date: Date.today.strftime('%Y-%m-%d')
+      start_date: real_factory ? Date.today.strftime('%Y-%m-%d') : '2018-09-13',
+      end_date: real_factory ? Date.today.strftime('%Y-%m-%d') : '2018-09-13'
     }
     periods << period
 
-    yesterday = Date.today-1
-    if yesterday.cwday > 5 then yesterday = Date.today-3 end
+    # Base all other periods on a random date between 2013 and 2015
+    # (36 to 60 months ago)
+    # which are the years with the highest volume of data
+    random_date_this_year = Date.today.months_ago(rand(36..60))
+    random_date_last_year = Date.today.months_ago(rand(36..60))
+
+    yesterday = real_factory ? Date.today-1 : random_date_this_year - 1
+
+    # If yesterday falls on a Saturday or Sunday, then force it to a weekday
+    if yesterday.cwday > 5 then yesterday = yesterday.prev_weekday end
 
     period = {name: 'yesterday',
       start_date: yesterday.strftime('%Y-%m-%d'),
@@ -89,14 +105,26 @@ class Api::V1::FiltersController < ApplicationController
     }
     periods << period
 
-    periods << build_period('this week', Date.today.all_week)
-    periods << build_period('this month', Date.today.all_month)
-    periods << build_period('this quarter', Date.today.all_quarter)
-    periods << build_period('this year', Date.today.all_year)
-    periods << build_period('last week', (Date.today-7).all_week)
-    periods << build_period('last month', Date.today.prev_month.all_month)
-    periods << build_period('last quarter', Date.today.last_quarter.all_month)
-    periods << build_period('last year', Date.today.prev_year.all_year)
+    if real_factory
+      periods << build_period('this week', Date.today.all_week)
+      periods << build_period('this month', Date.today.all_month)
+      periods << build_period('this quarter', Date.today.all_quarter)
+      periods << build_period('this year', Date.today.all_year)
+      periods << build_period('last week', (Date.today-7).all_week)
+      periods << build_period('last month', Date.today.last_month.all_month)
+      periods << build_period('last quarter', Date.today.last_quarter.all_quarter)
+      periods << build_period('last year', Date.today.prev_year.all_year)
+    else
+      periods << build_period('this week', random_date_this_year.all_week)
+      periods << build_period('this month', random_date_this_year.all_month)
+      periods << build_period('this quarter', random_date_this_year.all_quarter)
+      periods << build_period('this year', random_date_this_year.all_year)
+      periods << build_period('last week', random_date_last_year.all_week)
+      periods << build_period('last month', random_date_last_year.all_month)
+      periods << build_period('last quarter', random_date_last_year.all_quarter)
+      periods << build_period('last year', random_date_last_year.all_year)
+
+    end
 
   end
 
