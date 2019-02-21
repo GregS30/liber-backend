@@ -89,10 +89,10 @@ class Api::V1::FiltersController < ApplicationController
     periods << period
 
     # Base all other periods on a random date between 2013 and 2015
-    # (36 to 60 months ago)
+    # (48 to 72 months ago)
     # which are the years with the highest volume of data
-    random_date_this_year = Date.today.months_ago(rand(36..60))
-    random_date_last_year = Date.today.months_ago(rand(36..60))
+    random_date_this_year = Date.today.months_ago(rand(48..72))
+    random_date_last_year = Date.today.months_ago(rand(48..72))
 
     yesterday = real_factory ? Date.today-1 : random_date_this_year - 1
 

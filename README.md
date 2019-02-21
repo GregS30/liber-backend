@@ -19,3 +19,6 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
+
+# Liber Alchemy Back-End
+[Data Model Diagram](../docs/data_model.png)
